@@ -1,6 +1,8 @@
 package com.example.lifegame;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
@@ -22,7 +24,7 @@ public class Game {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.seconds(4), event -> {
+            new KeyFrame(Duration.seconds(1), event -> {
                 grid.drawGrid(gc, Cell.cells);
                 nextGeneration();
             }));
@@ -31,12 +33,6 @@ public class Game {
 
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             grid.drawCell(gc, (int) event.getX() / Grid.CELL_SIZE, (int) event.getY() / Grid.CELL_SIZE, true);
-            System.out.println(event.getX());
-            System.out.println(event.getY());
-            System.out.println((int) event.getX() / Grid.CELL_SIZE);
-            System.out.println((int) event.getY() / Grid.CELL_SIZE);
-            System.out.println(Cell.getCell((int) event.getX() / Grid.CELL_SIZE, (int) event.getY() / Grid.CELL_SIZE).getCountAliveNeighbors());
-            System.out.println();
         });
 
         root.getChildren().add(canvas);
@@ -45,23 +41,25 @@ public class Game {
     }
 
     void nextGeneration() {
-        List<Cell> newCells;
+        Map<Integer, Boolean> map = new HashMap<>();
+        int counter = 0;
 
-        newCells = Cell.cells.stream().map(
-            elem -> {
-                int countAliveNeighbors = elem.getCountAliveNeighbors();
+        for (var cell : Cell.cells) {
+            int countAliveNeighbors = cell.getCountAliveNeighbors();
 
-                if (!elem.isAlive() && countAliveNeighbors == 3) {
-                    elem.setAlive(true);
-                }
-                if (countAliveNeighbors < 2 || countAliveNeighbors > 3) {
-                    elem.setAlive(false);
-                }
-                return elem;
+            if (!cell.isAlive() && countAliveNeighbors == 3) {
+                map.put(counter, true);
             }
-        ).toList();
+            if (countAliveNeighbors < 2 || countAliveNeighbors > 3) {
+                map.put(counter, false);
+            }
+            counter++;
+        }
 
-        Cell.cells = newCells;
+        for (var entry : map.entrySet()) {
+            Cell.cells.get(entry.getKey()).setAlive(entry.getValue());
+        }
+
     }
 
 
