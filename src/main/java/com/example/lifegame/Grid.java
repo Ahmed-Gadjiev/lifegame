@@ -5,9 +5,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Grid {
-
-    public static final int CANVAS_WIDTH = 750;
-    public static final int CANVAS_HEIGHT = 750;
+    public static final int CANVAS_WIDTH = 1000;
+    public static final int CANVAS_HEIGHT = 1000;
     public static final int CELL_SIZE = 25;
 
     public void drawGrid(GraphicsContext gc, List<Cell> cells) {
@@ -21,7 +20,7 @@ public class Grid {
         double y = cellY * CELL_SIZE;
 
         if (alive) {
-            gc.setFill(Color.BLACK);
+        gc.setFill(Color.BLACK);
         } else {
             gc.setFill(Color.WHITE);
         }
