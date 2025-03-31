@@ -1,8 +1,8 @@
 package com.example.lifegame;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
@@ -14,20 +14,25 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
 public class Game {
 
-    private final Grid grid = new Grid();
+    private final CellGrid grid = new CellGrid();
+    private final GridView gridView = new GridView(grid);
+    private final Canvas canvas = new Canvas(GridView.CANVAS_WIDTH, GridView.CANVAS_HEIGHT);
+    private final GraphicsContext gc = canvas.getGraphicsContext2D();
+    private final Stage primaryStage;
 
-    void start(Stage primaryStage) {
+    public Game(Stage primaryStage) {this.primaryStage = primaryStage;}
+
+    public void start() {
         primaryStage.setTitle("LifeGame");
-        Canvas canvas = new Canvas(Grid.CANVAS_WIDTH, Grid.CANVAS_HEIGHT);
         BorderPane root = new BorderPane();
-        GraphicsContext gc = canvas.getGraphicsContext2D();
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.seconds(0.3), event -> {
-                grid.drawGrid(gc, Cell.cells);
+            new KeyFrame(Duration.seconds(0.1), event -> {
+                gridView.updateGrid(gc);
                 nextGeneration();
             }));
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -35,7 +40,8 @@ public class Game {
 
         Button pause = new Button("Pause");
         Button resume = new Button("Resume");
-        VBox buttons = new VBox(10, pause, resume, canvas);
+        Button randomGen = new Button("Random");
+        VBox buttons = new VBox(10, pause, resume, randomGen, canvas);
 
         pause.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             timeline.pause();
@@ -45,39 +51,67 @@ public class Game {
             timeline.play();
         });
 
+        randomGen.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            randomGeneration();
+        });
+
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            grid.drawCell(gc, (int) event.getX() / Grid.CELL_SIZE, (int) event.getY() / Grid.CELL_SIZE, true);
+            int cellX = (int) event.getX() / GridView.CELL_SIZE;
+            int cellY = (int) event.getY() / GridView.CELL_SIZE;
+
+            gridView.drawCell(gc, cellX, cellY, true);
+            grid.addCell(cellX, cellY);
         });
 
         root.getChildren().add(canvas);
         root.setRight(buttons);
-        primaryStage.setScene(new Scene(root, 1000, 1000));
+        primaryStage.setScene(new Scene(root, 1500, 1000));
         primaryStage.show();
     }
 
     void nextGeneration() {
-        // map для того, чтобы не менять клетки из списка сразу,
-        // а только после того как будет посчитано: какие клетки умрут, а какие останутся живыми,
-        // иначе неправильно работает логика игры
-        Map<Integer, Boolean> map = new HashMap<>();
-        int counter = 0;
+        Map<Pair<Integer, Integer>, Boolean> toChange = new HashMap<>();
 
-        for (var cell : Cell.cells) {
-            int countAliveNeighbors = cell.getCountAliveNeighbors();
+        for (int i = 0; i < GridView.WIDTH_IN_CELLS; i++) {
+            for (int j = 0; j < GridView.HEIGHT_IN_CELLS; j++) {
 
-            if (!cell.isAlive() && countAliveNeighbors == 3) {
-                map.put(counter, true);
+                int countAliveNeighbors = grid.getNeighbors(i, j).size();
+                boolean isAlive = (grid.getCell(i, j) != null);
+
+                if (!isAlive && countAliveNeighbors == 3) {
+                    toChange.put(new Pair<>(i, j), true);
+                }
+                if (countAliveNeighbors < 2 || countAliveNeighbors > 3) {
+                    toChange.put(new Pair<>(i, j), false);
+                }
             }
-            if (countAliveNeighbors < 2 || countAliveNeighbors > 3) {
-                map.put(counter, false);
-            }
-            counter++;
         }
 
-        for (var entry : map.entrySet()) {
-            Cell.cells.get(entry.getKey()).setAlive(entry.getValue());
+        for (var change : toChange.entrySet()) {
+            int x = change.getKey().getKey();
+            int y = change.getKey().getValue();
+
+            if (change.getValue()) {
+                grid.addCell(x, y);
+            } else {
+                grid.deleteCell(x, y);
+            }
         }
 
+    }
+
+    void randomGeneration() {
+        Random rand = new Random();
+
+        for (int i = 0; i < GridView.WIDTH_IN_CELLS; i++) {
+            for (int j = 0; j < GridView.HEIGHT_IN_CELLS; j++) {
+                boolean randBool = rand.nextBoolean();
+                if (randBool) {
+                    gridView.drawCell(gc, i, j, true);
+                    grid.addCell(i, j);
+                }
+            }
+        }
     }
 
 

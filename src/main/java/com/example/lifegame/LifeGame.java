@@ -10,11 +10,11 @@ public class LifeGame extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Game game = new Game();
+        Game game = new Game(primaryStage);
 
         primaryStage.setTitle("Пример работы с невидимой сеткой на Canvas");
 
-        game.start(primaryStage);
+        game.start();
     }
 
 }
