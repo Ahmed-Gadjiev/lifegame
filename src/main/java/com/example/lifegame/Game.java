@@ -23,8 +23,9 @@ public class Game {
     private final Canvas canvas = new Canvas(GridView.CANVAS_WIDTH, GridView.CANVAS_HEIGHT);
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
     private final Stage primaryStage;
+    private boolean pause = false;
 
-    static int fps = 20;
+    static int fps = 30;
 
     public Game(Stage primaryStage) {this.primaryStage = primaryStage;}
 
@@ -46,11 +47,11 @@ public class Game {
         VBox buttons = new VBox(10, pause, resume, randomGen, canvas);
 
         pause.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            timeline.pause();
+            this.pause = true;
         });
 
         resume.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            timeline.play();
+            this.pause = false;
         });
 
         randomGen.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -75,7 +76,9 @@ public class Game {
     }
 
     private void handleLogic() {
-        nextGeneration();
+        if (!pause) {
+            nextGeneration();
+        }
     }
 
     void nextGeneration() {
@@ -104,7 +107,6 @@ public class Game {
                 grid.addCell(x, y);
             } else {
                 grid.deleteCell(x, y);
-
             }
         }
     }
