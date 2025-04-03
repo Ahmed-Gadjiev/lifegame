@@ -10,8 +10,6 @@ import javafx.util.Pair;
 
 public class CellGrid {
     private final Map<Pair<Integer, Integer>, AliveCell> aliveCells = new HashMap<>();
-    private final Queue<AliveCell> deadCells = new ArrayDeque<>();
-    private final List<AliveCell> lastChanges = new ArrayList<>();
 
     public void addCell(int x, int y) {
         aliveCells.put(new Pair<>(x, y), new AliveCell(x, y));
@@ -26,7 +24,6 @@ public class CellGrid {
 
         if (cell != null) {
             aliveCells.remove(new Pair<>(x, y));
-            deadCells.offer(cell);
         }
     }
 
@@ -50,19 +47,8 @@ public class CellGrid {
         return neighbors;
     }
 
-    public void addChange(AliveCell cell) {
-        lastChanges.add(cell);
-    }
 
     public List<AliveCell> getAliveCells() {
         return aliveCells.values().stream().toList();
-    }
-
-    public Queue<AliveCell> getDeadCells() {
-        return deadCells;
-    }
-
-    public List<AliveCell> getLastChanges() {
-        return lastChanges;
     }
 }

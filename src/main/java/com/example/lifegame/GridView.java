@@ -16,25 +16,18 @@ public class GridView {
 
 
     public void updateGrid(GraphicsContext gc) {
-        for (AliveCell cell : grid.getAliveCells()) {
-            drawCell(gc, cell.getX(), cell.getY(), true);
-        }
+        gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        gc.setFill(Color.BLACK);
 
-        while (grid.getDeadCells().peek() != null) {
-            AliveCell cell = grid.getDeadCells().poll();
-            drawCell(gc, cell.getX(), cell.getY(), false);
+        for (AliveCell cell : grid.getAliveCells()) {
+            drawCell(gc, cell.getX(), cell.getY());
         }
     }
 
-    public void drawCell(GraphicsContext gc, int cellX, int cellY, boolean isAlive) {
+    public void drawCell(GraphicsContext gc, int cellX, int cellY) {
         int x = cellX * CELL_SIZE;
         int y = cellY * CELL_SIZE;
 
-        if (isAlive) {
-            gc.setFill(Color.BLACK);
-        } else {
-            gc.setFill(Color.WHITE);
-        }
         gc.fillRect(x, y, CELL_SIZE, CELL_SIZE);
     }
 }

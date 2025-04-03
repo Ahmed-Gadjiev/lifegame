@@ -24,6 +24,8 @@ public class Game {
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
     private final Stage primaryStage;
 
+    static int fps = 20;
+
     public Game(Stage primaryStage) {this.primaryStage = primaryStage;}
 
     public void start() {
@@ -31,9 +33,9 @@ public class Game {
         BorderPane root = new BorderPane();
 
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.seconds(0.1), event -> {
-                gridView.updateGrid(gc);
-                nextGeneration();
+            new KeyFrame(Duration.seconds(1.0 / fps), event -> {
+                handleLogic();
+                renderGrid();
             }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -59,7 +61,6 @@ public class Game {
             int cellX = (int) event.getX() / GridView.CELL_SIZE;
             int cellY = (int) event.getY() / GridView.CELL_SIZE;
 
-            gridView.drawCell(gc, cellX, cellY, true);
             grid.addCell(cellX, cellY);
         });
 
@@ -67,6 +68,14 @@ public class Game {
         root.setRight(buttons);
         primaryStage.setScene(new Scene(root, 1500, 1000));
         primaryStage.show();
+    }
+
+    private void renderGrid() {
+        gridView.updateGrid(gc);
+    }
+
+    private void handleLogic() {
+        nextGeneration();
     }
 
     void nextGeneration() {
@@ -95,9 +104,9 @@ public class Game {
                 grid.addCell(x, y);
             } else {
                 grid.deleteCell(x, y);
+
             }
         }
-
     }
 
     void randomGeneration() {
@@ -107,7 +116,6 @@ public class Game {
             for (int j = 0; j < GridView.HEIGHT_IN_CELLS; j++) {
                 boolean randBool = rand.nextBoolean();
                 if (randBool) {
-                    gridView.drawCell(gc, i, j, true);
                     grid.addCell(i, j);
                 }
             }
