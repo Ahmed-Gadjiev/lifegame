@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 public class GridView {
     private final CellGrid grid;
 
-    public static final int CELL_SIZE = 10;
+    public static final int CELL_SIZE = 5;
     public static final int CANVAS_WIDTH = 1000;
     public static final int CANVAS_HEIGHT = 1000;
     public static final int WIDTH_IN_CELLS = CANVAS_WIDTH / CELL_SIZE;
@@ -24,7 +24,6 @@ public class GridView {
             AliveCell cell = grid.getDeadCells().poll();
             drawCell(gc, cell.getX(), cell.getY(), false);
         }
-
     }
 
     public void drawCell(GraphicsContext gc, int cellX, int cellY, boolean isAlive) {

@@ -2,34 +2,30 @@ package com.example.lifegame;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import javafx.util.Pair;
 
 public class CellGrid {
-    private final List<AliveCell> aliveCells = new ArrayList<>();
+    private final Map<Pair<Integer, Integer>, AliveCell> aliveCells = new HashMap<>();
     private final Queue<AliveCell> deadCells = new ArrayDeque<>();
     private final List<AliveCell> lastChanges = new ArrayList<>();
 
     public void addCell(int x, int y) {
-        if (getCell(x, y) == null) {
-            aliveCells.add(new AliveCell(x, y));
-        }
+        aliveCells.put(new Pair<>(x, y), new AliveCell(x, y));
     }
 
     public AliveCell getCell(int x, int y) {
-        for (var cell : aliveCells) {
-            if (cell.getX() == x && cell.getY() == y) {
-                return cell;
-            }
-        }
-        return null;
+        return aliveCells.getOrDefault(new Pair<>(x, y), null);
     }
 
     public void deleteCell(int x, int y) {
         AliveCell cell = getCell(x, y);
 
         if (cell != null) {
-            aliveCells.remove(cell);
+            aliveCells.remove(new Pair<>(x, y));
             deadCells.offer(cell);
         }
     }
@@ -59,7 +55,7 @@ public class CellGrid {
     }
 
     public List<AliveCell> getAliveCells() {
-        return aliveCells;
+        return aliveCells.values().stream().toList();
     }
 
     public Queue<AliveCell> getDeadCells() {
