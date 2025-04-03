@@ -24,8 +24,10 @@ public class Game {
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
     private final Stage primaryStage;
     private boolean pause = false;
+    private int gameSpeedMillis = 25;
+    private long previousCallHandleLogicTime = 0;
 
-    static int fps = 30;
+    static int fps = 60;
 
     public Game(Stage primaryStage) {this.primaryStage = primaryStage;}
 
@@ -76,7 +78,10 @@ public class Game {
     }
 
     private void handleLogic() {
-        if (!pause) {
+        var currentTime = System.currentTimeMillis();
+        var timePassed = currentTime - previousCallHandleLogicTime;
+        if (!pause && timePassed >= gameSpeedMillis) {
+            previousCallHandleLogicTime = currentTime;
             nextGeneration();
         }
     }
